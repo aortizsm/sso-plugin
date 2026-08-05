@@ -9,7 +9,7 @@
 /**
  * Version details.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -17,7 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /** @var stdClass $plugin */
-$plugin->component = 'local_devlearn';
+$plugin->component = 'local_simplesso';
 $plugin->version = 2026050500;
 $plugin->release = '0.1.0';
 $plugin->maturity = MATURITY_ALPHA;

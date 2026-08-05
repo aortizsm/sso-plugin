@@ -7,9 +7,9 @@
 // (at your option) any later version.
 
 /**
- * Local helper functions for DevLearn SSO.
+ * Local helper functions for Simple SSO.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -23,7 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param bool $activeonly
  * @return stdClass|null
  */
-function local_devlearn_get_gateway_by_appid(string $appid, bool $activeonly = true): ?stdClass {
+function local_simplesso_get_gateway_by_appid(string $appid, bool $activeonly = true): ?stdClass {
     global $DB;
 
     $appid = clean_param($appid, PARAM_ALPHANUMEXT);
@@ -36,7 +36,7 @@ function local_devlearn_get_gateway_by_appid(string $appid, bool $activeonly = t
         $conditions['active'] = 1;
     }
 
-    $record = $DB->get_record('local_devlearn_gateway', $conditions);
+    $record = $DB->get_record('local_simplesso_gateway', $conditions);
     return $record ?: null;
 }
 
@@ -48,7 +48,7 @@ function local_devlearn_get_gateway_by_appid(string $appid, bool $activeonly = t
  * @param stdClass|null $course  Optional course the user is launching from.
  * @return array
  */
-function local_devlearn_build_payload(stdClass $user, string $appid, ?stdClass $course = null): array {
+function local_simplesso_build_payload(stdClass $user, string $appid, ?stdClass $course = null): array {
     $payload = [
         'userid'    => (int)$user->id,
         'username'  => (string)$user->username,
@@ -57,7 +57,7 @@ function local_devlearn_build_payload(stdClass $user, string $appid, ?stdClass $
         'lastname'  => (string)$user->lastname,
         'appid'     => (string)$appid,
         'iat'       => time(),
-        'nonce'     => local_devlearn_generate_nonce(),
+        'nonce'     => local_simplesso_generate_nonce(),
         'course'    => null,
     ];
 
@@ -82,10 +82,10 @@ function local_devlearn_build_payload(stdClass $user, string $appid, ?stdClass $
  * @param array $payload
  * @return string
  */
-function local_devlearn_payload_json(array $payload): string {
+function local_simplesso_payload_json(array $payload): string {
     $json = json_encode($payload);
     if ($json === false) {
-        throw new coding_exception('Unable to JSON encode payload in local_devlearn_payload_json().');
+        throw new coding_exception('Unable to JSON encode payload in local_simplesso_payload_json().');
     }
 
     return $json;
@@ -98,7 +98,7 @@ function local_devlearn_payload_json(array $payload): string {
  * @param string $secret
  * @return string
  */
-function local_devlearn_sign_payload(string $payloadjson, string $secret): string {
+function local_simplesso_sign_payload(string $payloadjson, string $secret): string {
     return hash_hmac('sha256', $payloadjson, $secret);
 }
 
@@ -108,7 +108,7 @@ function local_devlearn_sign_payload(string $payloadjson, string $secret): strin
  * @param string $data
  * @return string
  */
-function local_devlearn_base64url_encode(string $data): string {
+function local_simplesso_base64url_encode(string $data): string {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
@@ -121,41 +121,41 @@ function local_devlearn_base64url_encode(string $data): string {
  * @param string $plain
  * @return string
  */
-function local_devlearn_encrypt_secret(string $plain): string {
+function local_simplesso_encrypt_secret(string $plain): string {
     global $CFG;
 
     $salt = !empty($CFG->passwordsaltmain) ? $CFG->passwordsaltmain : ($CFG->wwwroot . $CFG->dataroot);
-    $key = substr(hash('sha256', $salt . 'local_devlearn_secret', true), 0, 32);
+    $key = substr(hash('sha256', $salt . 'local_simplesso_secret', true), 0, 32);
     $iv = random_bytes(16);
     $ciphertext = openssl_encrypt($plain, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
     if ($ciphertext === false) {
-        throw new coding_exception('local_devlearn_encrypt_secret: openssl_encrypt failed.');
+        throw new coding_exception('local_simplesso_encrypt_secret: openssl_encrypt failed.');
     }
 
     return base64_encode($iv . $ciphertext);
 }
 
 /**
- * Decrypt a secret stored by local_devlearn_encrypt_secret().
+ * Decrypt a secret stored by local_simplesso_encrypt_secret().
  *
  * @param string $stored Base64-encoded iv + ciphertext
  * @return string Plaintext secret
  */
-function local_devlearn_decrypt_secret(string $stored): string {
+function local_simplesso_decrypt_secret(string $stored): string {
     global $CFG;
 
     $salt = !empty($CFG->passwordsaltmain) ? $CFG->passwordsaltmain : ($CFG->wwwroot . $CFG->dataroot);
-    $key = substr(hash('sha256', $salt . 'local_devlearn_secret', true), 0, 32);
+    $key = substr(hash('sha256', $salt . 'local_simplesso_secret', true), 0, 32);
     $raw = base64_decode($stored, true);
     if ($raw === false || strlen($raw) <= 16) {
-        throw new coding_exception('local_devlearn_decrypt_secret: invalid ciphertext.');
+        throw new coding_exception('local_simplesso_decrypt_secret: invalid ciphertext.');
     }
 
     $iv = substr($raw, 0, 16);
     $ciphertext = substr($raw, 16);
     $plain = openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
     if ($plain === false) {
-        throw new coding_exception('local_devlearn_decrypt_secret: decryption failed.');
+        throw new coding_exception('local_simplesso_decrypt_secret: decryption failed.');
     }
 
     return $plain;
@@ -175,15 +175,15 @@ function local_devlearn_decrypt_secret(string $stored): string {
  * @param stdClass|null $course  Optional course context to include in payload.
  * @return array{endpoint: string, payload: string, signature: string, nonce: string}
  */
-function local_devlearn_get_launch_params(stdClass $gateway, stdClass $user, ?stdClass $course = null): array {
-    $secret      = local_devlearn_decrypt_secret((string)$gateway->sharedsecret);
-    $payload     = local_devlearn_build_payload($user, $gateway->appid, $course);
-    $payloadjson = local_devlearn_payload_json($payload);
+function local_simplesso_get_launch_params(stdClass $gateway, stdClass $user, ?stdClass $course = null): array {
+    $secret      = local_simplesso_decrypt_secret((string)$gateway->sharedsecret);
+    $payload     = local_simplesso_build_payload($user, $gateway->appid, $course);
+    $payloadjson = local_simplesso_payload_json($payload);
 
     return [
         'endpoint'  => (string)$gateway->endpoint,
-        'payload'   => local_devlearn_base64url_encode($payloadjson),
-        'signature' => local_devlearn_sign_payload($payloadjson, $secret),
+        'payload'   => local_simplesso_base64url_encode($payloadjson),
+        'signature' => local_simplesso_sign_payload($payloadjson, $secret),
         'nonce'     => (string)$payload['nonce'],
     ];
 }
@@ -198,7 +198,7 @@ function local_devlearn_get_launch_params(stdClass $gateway, stdClass $user, ?st
  * @param string $nonce   Token nonce (empty if launch failed before nonce generation).
  * @return void
  */
-function local_devlearn_write_log(int $userid, string $appid, bool $success, string $reason = '', string $nonce = ''): void {
+function local_simplesso_write_log(int $userid, string $appid, bool $success, string $reason = '', string $nonce = ''): void {
     global $DB;
 
     $ip = getremoteaddr();
@@ -213,7 +213,7 @@ function local_devlearn_write_log(int $userid, string $appid, bool $success, str
         'timecreated' => time(),
     ];
 
-    $DB->insert_record('local_devlearn_log', $record, false);
+    $DB->insert_record('local_simplesso_log', $record, false);
 }
 
 /**
@@ -222,7 +222,7 @@ function local_devlearn_write_log(int $userid, string $appid, bool $success, str
  * @param string $endpoint
  * @return string|null
  */
-function local_devlearn_normalize_endpoint(string $endpoint): ?string {
+function local_simplesso_normalize_endpoint(string $endpoint): ?string {
     $endpoint = trim($endpoint);
     $cleanendpoint = clean_param($endpoint, PARAM_URL);
 
@@ -248,7 +248,7 @@ function local_devlearn_normalize_endpoint(string $endpoint): ?string {
  *
  * @return string
  */
-function local_devlearn_generate_nonce(): string {
+function local_simplesso_generate_nonce(): string {
     try {
         return bin2hex(random_bytes(16));
     } catch (Exception $exception) {

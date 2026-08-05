@@ -1,10 +1,10 @@
-# DevLearn SSO
+# Simple SSO
 
 Plugin local de Moodle que proporciona Single Sign-On (SSO) seguro desde Moodle hacia aplicaciones externas mediante cargas útiles firmadas con HMAC-SHA256 entregadas vía HTTP POST.
 
 ## Descripción
 
-DevLearn SSO permite que los usuarios autenticados en Moodle inicien sesión en aplicaciones externas sin necesidad de volver a autenticarse. Funciona construyendo una carga útil firmada con datos del usuario (opcionalmente incluyendo contexto de curso) y enviándola mediante POST a un endpoint externo configurado — los datos nunca viajan en la URL.
+Simple SSO permite que los usuarios autenticados en Moodle inicien sesión en aplicaciones externas sin necesidad de volver a autenticarse. Funciona construyendo una carga útil firmada con datos del usuario (opcionalmente incluyendo contexto de curso) y enviándola mediante POST a un endpoint externo configurado — los datos nunca viajan en la URL.
 
 ## Características
 
@@ -25,13 +25,13 @@ DevLearn SSO permite que los usuarios autenticados en Moodle inicien sesión en 
 
 ## Instalación
 
-1. Coloca este plugin en `local/devlearn/` dentro de tu instalación de Moodle
+1. Coloca este plugin en `local/simplesso/` dentro de tu instalación de Moodle
 2. Inicia sesión como administrador y visita **Notificaciones** para instalar las tablas
 3. Configura las pasarelas en **Administración del sitio → Plugins locales → Gestionar pasarelas SSO**
 
 ## Tablas de Base de Datos
 
-### `local_devlearn_gateway`
+### `local_simplesso_gateway`
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
@@ -44,7 +44,7 @@ DevLearn SSO permite que los usuarios autenticados en Moodle inicien sesión en 
 | timecreated | int(10) | Marca de tiempo de creación |
 | timemodified | int(10) | Marca de tiempo de última modificación |
 
-### `local_devlearn_log`
+### `local_simplesso_log`
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
@@ -61,21 +61,21 @@ DevLearn SSO permite que los usuarios autenticados en Moodle inicien sesión en 
 
 | Capacidad | Contexto | Por defecto | Descripción |
 |-----------|----------|-------------|-------------|
-| `local/devlearn:usegateway` | Sistema | Usuario | Permiso para lanzar SSO a apps externas |
-| `local/devlearn:managegateways` | Sistema | Gestor | Permiso para crear, editar y eliminar pasarelas |
+| `local/simplesso:usegateway` | Sistema | Usuario | Permiso para lanzar SSO a apps externas |
+| `local/simplesso:managegateways` | Sistema | Gestor | Permiso para crear, editar y eliminar pasarelas |
 
 ## Uso
 
 ### URL de lanzamiento
 
 ```
-https://tu-moodle.com/local/devlearn/launch.php?appid=TU_APPID
+https://tu-moodle.com/local/simplesso/launch.php?appid=TU_APPID
 ```
 
 Con contexto de curso:
 
 ```
-https://tu-moodle.com/local/devlearn/launch.php?appid=TU_APPID&courseid=7
+https://tu-moodle.com/local/simplesso/launch.php?appid=TU_APPID&courseid=7
 ```
 
 ### Flujo SSO
@@ -161,16 +161,16 @@ Consulta [CONNECT.md](CONNECT.md) para ejemplos completos de integración en PHP
 ## Estructura de Archivos
 
 ```
-local/devlearn/
+local/simplesso/
 ├── db/
 │   ├── access.php        # Definición de capacidades
 │   ├── install.xml       # Esquema de base de datos (XMLDB)
 │   └── upgrade.php       # Pasos de actualización
 ├── lang/
 │   ├── en/
-│   │   └── local_devlearn.php  # Cadenas en inglés
+│   │   └── local_simplesso.php  # Cadenas en inglés
 │   └── es/
-│       └── local_devlearn.php  # Cadenas en español
+│       └── local_simplesso.php  # Cadenas en español
 ├── CONNECT.md            # Guía de integración para apps externas
 ├── gateway.php           # Página de creación/edición de pasarelas
 ├── index.php             # Página de gestión de pasarelas

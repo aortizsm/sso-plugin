@@ -9,7 +9,7 @@
 /**
  * Admin settings and links.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -18,9 +18,9 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $ADMIN->add('localplugins', new admin_externalpage(
-        'local_devlearn_gateways',
-        get_string('managegateways', 'local_devlearn'),
-        new moodle_url('/local/devlearn/index.php'),
-        'local/devlearn:managegateways'
+        'local_simplesso_gateways',
+        get_string('managegateways', 'local_simplesso'),
+        new moodle_url('/local/simplesso/index.php'),
+        'local/simplesso:managegateways'
     ));
 }

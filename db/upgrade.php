@@ -9,7 +9,7 @@
 /**
  * Plugin upgrade steps are defined here.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -17,11 +17,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute local_devlearn upgrade from the given old version.
+ * Execute local_simplesso upgrade from the given old version.
  *
  * @param int $oldversion
  * @return bool
  */
-function xmldb_local_devlearn_upgrade(int $oldversion): bool {
+function xmldb_local_simplesso_upgrade(int $oldversion): bool {
     return true;
 }

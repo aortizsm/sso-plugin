@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/devlearn/db" VERSION="2026050501" COMMENT="DevLearn SSO tables">
+<XMLDB PATH="local/simplesso/db" VERSION="2026050501" COMMENT="Simple SSO tables">
   <TABLES>
-    <TABLE NAME="local_devlearn_gateway" COMMENT="Gateway targets for external SSO redirects">
+    <TABLE NAME="local_simplesso_gateway" COMMENT="Gateway targets for external SSO redirects">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="appid" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
@@ -20,7 +20,7 @@
         <INDEX NAME="idx_active" UNIQUE="false" FIELDS="active"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="local_devlearn_log" COMMENT="SSO launch audit log">
+    <TABLE NAME="local_simplesso_log" COMMENT="SSO launch audit log">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>

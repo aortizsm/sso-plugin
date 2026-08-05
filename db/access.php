@@ -9,7 +9,7 @@
 /**
  * Capability definitions.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -17,14 +17,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'local/devlearn:usegateway' => [
+    'local/simplesso:usegateway' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'user' => CAP_ALLOW,
         ],
     ],
-    'local/devlearn:managegateways' => [
+    'local/simplesso:managegateways' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [

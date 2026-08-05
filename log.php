@@ -9,7 +9,7 @@
 /**
  * SSO audit log viewer.
  *
- * @package    local_devlearn
+ * @package    local_simplesso
  * @copyright  2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -20,16 +20,16 @@ require_once(__DIR__ . '/locallib.php');
 
 global $DB, $PAGE, $OUTPUT;
 
-admin_externalpage_setup('local_devlearn_gateways');
+admin_externalpage_setup('local_simplesso_gateways');
 
 /** @var context $context */
 $context = context_system::instance();
-require_capability('local/devlearn:managegateways', $context);
+require_capability('local/simplesso:managegateways', $context);
 
-$PAGE->set_url(new moodle_url('/local/devlearn/log.php'));
+$PAGE->set_url(new moodle_url('/local/simplesso/log.php'));
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('logtitle', 'local_devlearn'));
-$PAGE->set_heading(get_string('logtitle', 'local_devlearn'));
+$PAGE->set_title(get_string('logtitle', 'local_simplesso'));
+$PAGE->set_heading(get_string('logtitle', 'local_simplesso'));
 
 // Filters.
 $filterappid = optional_param('filterappid', '', PARAM_ALPHANUMEXT);
@@ -53,23 +53,23 @@ if ($filtersuccess === 0 || $filtersuccess === 1) {
 $where = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 $sql = "SELECT l.id, l.userid, l.appid, l.success, l.reason, l.nonce, l.ip, l.timecreated,
                " . $DB->sql_concat('u.firstname', "' '", 'u.lastname') . " AS fullname, u.username
-          FROM {local_devlearn_log} l
+          FROM {local_simplesso_log} l
      LEFT JOIN {user} u ON u.id = l.userid
                $where
       ORDER BY l.timecreated DESC";
 
-$total = $DB->count_records_sql("SELECT COUNT(1) FROM {local_devlearn_log} l $where", $params);
+$total = $DB->count_records_sql("SELECT COUNT(1) FROM {local_simplesso_log} l $where", $params);
 $records = $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
-$appids = $DB->get_records_menu('local_devlearn_gateway', null, 'appid ASC', 'id, appid');
+$appids = $DB->get_records_menu('local_simplesso_gateway', null, 'appid ASC', 'id, appid');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('logtitle', 'local_devlearn'));
+echo $OUTPUT->heading(get_string('logtitle', 'local_simplesso'));
 
 // Filter form.
-$filterurl = new moodle_url('/local/devlearn/log.php');
+$filterurl = new moodle_url('/local/simplesso/log.php');
 echo html_writer::start_tag('form', ['method' => 'get', 'action' => $filterurl->out(false), 'class' => 'form-inline mb-3']);
 
-echo html_writer::tag('label', get_string('appid', 'local_devlearn') . ':&nbsp;', ['for' => 'filterappid']);
+echo html_writer::tag('label', get_string('appid', 'local_simplesso') . ':&nbsp;', ['for' => 'filterappid']);
 $appoptions = ['' => get_string('all')];
 foreach ($appids as $aid) {
     $appoptions[$aid] = $aid;
@@ -77,8 +77,8 @@ foreach ($appids as $aid) {
 echo html_writer::select($appoptions, 'filterappid', $filterappid, false, ['id' => 'filterappid', 'class' => 'form-control mr-2']);
 
 echo '&nbsp;';
-echo html_writer::tag('label', get_string('logstatus', 'local_devlearn') . ':&nbsp;', ['for' => 'filtersuccess']);
-$statusoptions = [-1 => get_string('all'), 1 => get_string('logsuccess', 'local_devlearn'), 0 => get_string('logfail', 'local_devlearn')];
+echo html_writer::tag('label', get_string('logstatus', 'local_simplesso') . ':&nbsp;', ['for' => 'filtersuccess']);
+$statusoptions = [-1 => get_string('all'), 1 => get_string('logsuccess', 'local_simplesso'), 0 => get_string('logfail', 'local_simplesso')];
 echo html_writer::select($statusoptions, 'filtersuccess', $filtersuccess, false, ['id' => 'filtersuccess', 'class' => 'form-control mr-2']);
 
 echo '&nbsp;';
@@ -86,22 +86,22 @@ echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string(
 echo html_writer::end_tag('form');
 
 if (!$records) {
-    echo $OUTPUT->notification(get_string('lognone', 'local_devlearn'), \core\output\notification::NOTIFY_INFO);
+    echo $OUTPUT->notification(get_string('lognone', 'local_simplesso'), \core\output\notification::NOTIFY_INFO);
 } else {
     $table = new html_table();
     $table->head = [
         get_string('date'),
         get_string('user'),
-        get_string('appid', 'local_devlearn'),
-        get_string('logstatus', 'local_devlearn'),
-        get_string('reason', 'local_devlearn'),
+        get_string('appid', 'local_simplesso'),
+        get_string('logstatus', 'local_simplesso'),
+        get_string('reason', 'local_simplesso'),
         'IP',
     ];
 
     foreach ($records as $r) {
         $statuslabel = ((int)$r->success === 1)
-            ? html_writer::tag('span', get_string('logsuccess', 'local_devlearn'), ['class' => 'badge badge-success'])
-            : html_writer::tag('span', get_string('logfail', 'local_devlearn'), ['class' => 'badge badge-danger']);
+            ? html_writer::tag('span', get_string('logsuccess', 'local_simplesso'), ['class' => 'badge badge-success'])
+            : html_writer::tag('span', get_string('logfail', 'local_simplesso'), ['class' => 'badge badge-danger']);
 
         $userlink = html_writer::link(
             new moodle_url('/user/view.php', ['id' => $r->userid]),
@@ -120,12 +120,12 @@ if (!$records) {
 
     echo html_writer::table($table);
 
-    $pageurl = new moodle_url('/local/devlearn/log.php', ['filterappid' => $filterappid, 'filtersuccess' => $filtersuccess]);
+    $pageurl = new moodle_url('/local/simplesso/log.php', ['filterappid' => $filterappid, 'filtersuccess' => $filtersuccess]);
     echo $OUTPUT->paging_bar($total, $page, $perpage, $pageurl);
 }
 
 echo html_writer::div(
-    html_writer::link(new moodle_url('/local/devlearn/index.php'), '&larr; ' . get_string('managegateways', 'local_devlearn')),
+    html_writer::link(new moodle_url('/local/simplesso/index.php'), '&larr; ' . get_string('managegateways', 'local_simplesso')),
     'mt-3'
 );
 

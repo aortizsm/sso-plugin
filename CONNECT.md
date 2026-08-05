@@ -1,4 +1,4 @@
-# Conectar una app externa al SSO de DevLearn
+# Conectar una app externa al SSO de Simple SSO
 
 Este documento explica cómo recibir y validar el inicio de sesión SSO que Moodle envía a tu app.
 
@@ -9,7 +9,7 @@ Este documento explica cómo recibir y validar el inicio de sesión SSO que Mood
 ```
 Usuario en Moodle
       │
-      │  1. Abre: /local/devlearn/launch.php?appid=TU_APPID
+      │  1. Abre: /local/simplesso/launch.php?appid=TU_APPID
       ▼
   Moodle verifica sesión activa y capability
       │
@@ -104,7 +104,7 @@ Una vez decodificado tiene esta forma:
 define('SSO_SECRET', 'el-secreto-que-pusiste-en-moodle');
 define('SSO_MAX_AGE', 120); // segundos de vida del token
 
-function verifyDevlearnSSO(string $rawPayload, string $receivedSig): array {
+function verifySimplessoSSO(string $rawPayload, string $receivedSig): array {
     // 1. Decodificar Base64URL → JSON
     $json = base64_decode(strtr($rawPayload, '-_', '+/'));
     if ($json === false) {
@@ -140,7 +140,7 @@ function verifyDevlearnSSO(string $rawPayload, string $receivedSig): array {
 // --- Punto de entrada ---
 // Los datos llegan via POST (formulario auto-enviado por Moodle)
 try {
-    $payload = verifyDevlearnSSO(
+    $payload = verifySimplessoSSO(
         $_POST['payload'] ?? '',
         $_POST['signature'] ?? ''
     );
@@ -326,7 +326,7 @@ function markNonceAsUsed(string $nonce): void {
 ## Configurar la pasarela en Moodle
 
 1. Ir a **Administración del sitio → Plugins locales → Manage SSO gateways**  
-   (o a `/local/devlearn/index.php`)
+   (o a `/local/simplesso/index.php`)
 2. Crear nueva pasarela:
 
    | Campo | Valor de ejemplo |
@@ -347,12 +347,12 @@ Para dirigir a un usuario a tu app desde Moodle (por ejemplo en un link de menú
 
 **Sin contexto de curso:**
 ```
-https://tu-moodle.com/local/devlearn/launch.php?appid=miapp1
+https://tu-moodle.com/local/simplesso/launch.php?appid=miapp1
 ```
 
 **Desde dentro de un curso** (incluye datos del curso en el payload):
 ```
-https://tu-moodle.com/local/devlearn/launch.php?appid=miapp1&courseid=7
+https://tu-moodle.com/local/simplesso/launch.php?appid=miapp1&courseid=7
 ```
 
 El usuario debe tener sesión activa en Moodle. Si no la tiene, Moodle lo llevará al login primero.
